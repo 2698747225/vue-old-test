@@ -24,7 +24,7 @@ npm start
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
 
 # 相关组件练习文档
-Vue相关
+# Vue相关
 v-bind：相当于单向绑定，后面跟的属性相当于绑定的属性，值为vue实例的值（相当于angular2的方括号）
 
 v-on：相当于绑定事件，后面跟的是事件名，以及vue实例中的事件名。
@@ -85,7 +85,7 @@ vue动态渲染部分，render会在beforeCreated之前执行，回调函数中�
 
 watch部分，可以监听实例属性变化，但如果实例属性为对象，需要深度监听，如果需要监听第一次初始化，需要加上immediate
 
-Router相关
+# Router相关
 命名路由
 例如针对不同id的用户，/user/:id。在实例中可以通过$route.params.id获取，通过路由props参数的设置，可以解除耦合（通过props接收动态路径参数）。组件中可以通过
 $router.push(name:'name',params:{id:id})的方式跳转命名路由。路由参数变化可以通过beforeRouteUpdate监听。
@@ -115,3 +115,39 @@ beforeEach、beforeResolve、afterEach
 beforeEnter
 组件内
 beforeRouteUpdate、beforeRouteEnter、beforeRouteLeave
+
+# vuex相关
+vuex是vue的状态管理树，通俗点理解就是全局状态管理。通过在全局实例化store树，每个单页组件中就都可以引入一个相同的全局状态变量，方便追踪、操作多个组件共享状态。
+
+vuex Store树包含state（状态，相当于组件中的data）、getters（相当于computed的getter方法）、mutations（相当于methods）、actions（异步methods）、module
+
+单页组件中可以通过this.$state访问store中的状态，在computed中可以响应状态的变化，data中只有第一次拿的到数据。也可以通过mapState的方式获取state对象。
+    ...mapState({					...map(['count','student'])
+      count: state => state.count,
+      countParse: function(state) {
+        return state.count + this.msg;
+      },
+      sex: state => state.student.sex
+    })
+
+getters保存的主要是格式化的状态数据，理论上也可以在组件中进行格式化，缺点是每个组件都要写一遍。和state用法类似，一般在组件的computed中注入
+
+mutations用来对状态进行修改，但若状态是对象类型，可以利用Vue的数据响应，通过Vue.set方法添加对象属性，修改对象属性可以直接修改。而mutations主要针对其他类型的状态进行修改。
+mutations函数为function(state、params){}，组件中利用this.$store.commit('mutationsName',{param:1})的方式调用。mutations只能同步修改state
+
+actions用来异步操作state，但实际上是通过actions异步执行store实例的commit方法（actions函数可以获得context对象）实现的，组件中的注册方法和mutations类似，通过this.$store.dispatch
+方法进行调用
+
+module的作用是分块管理状态树，都注册在全局树上会导致很难管理。
+使用module后，模块内部的state是局部的，组件中如果要引用外部state需要加入模块名。store树中要引入外部state可以通过rootState（store实例中）对象引入
+模块内部的 action、mutations 和 getters 默认可是注册在全局命名空间的。这意味着组件中commit提交一个状态，有可能引发多个全局模块中相同属性名的mutations执行。若要使store树中
+模块内的action、mutations、getters只在当前模块中生效，需要加入namespaced: true字段，组件中如果要访问它，就需要在方法前加入模块的路径，或者使用createNamespacedHelpers，
+创建模块独有的空间。
+可以通过store.registerModule动态注册模块，但一般是用在第三方插件使用vuex管理状态时创建的，支持模块的卸载。
+模块在重用时，state会被多个组件引用，导致污染。可以使用和组件data相似的，使用函数返回的方式
+
+store树：									组件中：只有在vuex封装的mapState, mapGetters, mapMutations, mapActions中有注入state
+	state基础类型、引用类型							state:$store.state
+	mutations：function(state、params){}						mutations：$store.commit
+	getters：function(state, getters, rootState){}					getters：$store.getters
+	actions：function(context:{state、commit、dispatch、getters,rootState}){}		actions：$store.dispatch
