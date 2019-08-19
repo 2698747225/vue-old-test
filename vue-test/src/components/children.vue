@@ -87,9 +87,12 @@ export default {
       handler(newVal, oldVal) {
         this.value = newVal;
         this.obj.b = 2;
-        console.log("test");
       },
       deep: true
+    },
+    items(newVal, oldVal) {
+      console.log(newVal);
+      console.log(oldVal);
     }
   },
   props: ["name", "label", "pdata"],
@@ -99,34 +102,15 @@ export default {
         name: "name" + (this.list.length + 1),
         value: this.list.length + 1
       });
-      this.items.length = 2;
+      /**
+       * VUE的对象、数组检测机制，经过测试不会影响数据到模板的单向数据绑定，但第一种方法无法触发Vue数据检测，需要使用Vue.set方法修改引用类型
+       */
+      // this.items.length = 2;
+      this.$set(this.items, 0, "d");
     },
     add: function() {
       this.$emit("update:pdata", false);
     }
-    /**
-     * 1、sass-store，该项目为toB端 项目职责为针对B端品牌保养项目做技术支持，
-     * 前端框架为angular6、UI组件库为ant-design，整体使用的是angularJS支持比较好的TypeScript作为开发语言
-     * 项目为单页面，表单页面采用了响应式表单，舍去了ngModel、指令等数据绑定和校验的方式，全权交给form处理
-     * 和后端的数据传输等异步操作方面没有用es6的promise，而是采用了angular以及rxjs支持的观察者模式进行
-     *
-     * 2、common-operation 该项目为公司内部针对toB方面进行管理的一套系统
-     * 整体项目框架和B端相同。主要做的业务是权限管理、帮助中心、消息推送、店铺管理、组织架构等
-     * 项目大数据统计等通过可视化展现在项目中，这一块相对用的比较多的是echarts。
-     * 此外项目刚构建时，业务逻辑大多都在前端，因此还用到了一些获取神策地址解析以及通过xlsx插件实现纯前端表格导出等
-     *
-     * 3、saas-insurance  该项目为公司对于保险项目的前端支持
-     * 该项目的业务逻辑比较复杂，大多数的页面为了当前页数据不丢失，都采用了Url保存query参数、以及浏览器缓存保存数据。
-     * 项目中采用了crypto-js的Hmac加密方式调用了腾讯云的文字识别服务，用来实现车牌识别。
-     * 由于保险数据量比较大，而公司的nginx也支持http2，因此导入文件采用了将文件拆分，通过forkJoin同时发送多个小的formData
-     * 的方式传至后台
-     *
-     *
-     * 1、sass-store、common-operation、common-store、saas-insurance
-     *
-     *
-     *
-     */
   }
 };
 </script>
